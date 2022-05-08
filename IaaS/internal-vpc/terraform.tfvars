@@ -1,8 +1,0 @@
-region                          = "us-west-1"
-private_vpc_cidr                = "10.20.0.0/16"
-private_vpc_name                = "595-VPC-Private"
-private_vpc_priv_subnet_cidr    = "10.20.2.0/24"
-private_vpc_priv_subnet_name    = "Ptivate VPC: Internal Subnet"
-private_vpc_priv_subnet_rt_name = "Private VPC: RT Internal Subnet"
-author                          = "Usman Aslam"
-team                            = "John, Afreen, Jawad, Usman"
