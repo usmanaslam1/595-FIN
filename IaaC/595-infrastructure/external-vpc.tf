@@ -9,9 +9,9 @@ resource "aws_vpc" "PublicVPC" {
   }
 }
 
-resource "aws_subnet" "pub_subnet" { # Creating Public Subnets
+resource "aws_subnet" "pub_subnet" {
   vpc_id                  = aws_vpc.PublicVPC.id
-  cidr_block              = var.public_vpc_pub_subnet_cidr # CIDR block of public subnets
+  cidr_block              = var.public_vpc_pub_subnet_cidr
   map_public_ip_on_launch = true
   tags = {
     Name   = var.public_vpc_pub_subnet_name
@@ -24,7 +24,7 @@ resource "aws_subnet" "pub_subnet" { # Creating Public Subnets
 resource "aws_subnet" "priv_subnet" {
   vpc_id                  = aws_vpc.PublicVPC.id
   map_public_ip_on_launch = false
-  cidr_block              = var.public_vpc_priv_subnet_cidr # CIDR block of private subnets
+  cidr_block              = var.public_vpc_priv_subnet_cidr
 
   tags = {
     Name   = var.public_vpc_priv_subnet_name
@@ -33,11 +33,11 @@ resource "aws_subnet" "priv_subnet" {
   }
 }
 
-resource "aws_route_table" "PublicRT" { # Creating RT for Public Subnet
+resource "aws_route_table" "PublicRT" {
   vpc_id = aws_vpc.PublicVPC.id
 
   route {
-    cidr_block = "0.0.0.0/0" # Traffic from Public Subnet reaches Internet via Internet Gateway
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.IGW.id
   }
 
@@ -48,10 +48,10 @@ resource "aws_route_table" "PublicRT" { # Creating RT for Public Subnet
   }
 }
 
-resource "aws_route_table" "PrivateRT" { # Creating RT for Private Subnet
+resource "aws_route_table" "PrivateRT" {
   vpc_id = aws_vpc.PublicVPC.id
   route {
-    cidr_block     = "0.0.0.0/0" # Traffic from Private Subnet reaches Internet via NAT Gateway
+    cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.NATgw.id
   }
   tags = {

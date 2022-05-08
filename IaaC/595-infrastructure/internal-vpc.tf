@@ -1,8 +1,4 @@
 
-#Step 1: Create VPC.
-#Minimum required input paramters
-#Name Tag:  595-VPC-Public
-#CIDR range:  10.10.0.0/16
 resource "aws_vpc" "PrivateVPC" {
   cidr_block       = var.private_vpc_cidr
   instance_tenancy = "default"
@@ -15,13 +11,9 @@ resource "aws_vpc" "PrivateVPC" {
 
 }
 
-
-#Step 3: Create Private Subnet
-#CIDR range:  10.10.2.0/24
-
 resource "aws_subnet" "main_subnet" {
   vpc_id     = aws_vpc.PrivateVPC.id
-  cidr_block = var.private_vpc_priv_subnet_cidr # CIDR block of private subnets
+  cidr_block = var.private_vpc_priv_subnet_cidr
 
   tags = {
     Name   = var.private_vpc_priv_subnet_name
@@ -30,11 +22,8 @@ resource "aws_subnet" "main_subnet" {
   }
 }
 
-#Step 5: Create private routing table
-#Add local route
-#There is no route to Internet
 
-resource "aws_route_table" "RT" { # Creating RT for Private Subnet
+resource "aws_route_table" "RT" {
   vpc_id = aws_vpc.PrivateVPC.id
   tags = {
     Name   = var.private_vpc_priv_subnet_rt_name
@@ -43,7 +32,6 @@ resource "aws_route_table" "RT" { # Creating RT for Private Subnet
   }
 }
 
-#Step 7: Create association between private subnet and private routing table
 
 resource "aws_route_table_association" "RTassociation" {
   subnet_id      = aws_subnet.main_subnet.id
