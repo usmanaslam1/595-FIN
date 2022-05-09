@@ -94,7 +94,7 @@ resource "aws_eip" "nateIP" {
 
 resource "aws_nat_gateway" "NATgw" {
   allocation_id = aws_eip.nateIP.id
-  subnet_id     = aws_subnet.priv_subnet.id
+  subnet_id     = aws_subnet.pub_subnet.id
   tags = {
     Name   = var.public_vpc_nat_gw_name
     Author = var.author
@@ -160,4 +160,52 @@ resource "aws_network_acl_association" "external-1-acl" {
 resource "aws_network_acl_association" "internal-1-acl" {
   network_acl_id = aws_network_acl.acl-pub-vpc-subnet-internal-1.id
   subnet_id      = aws_subnet.priv_subnet.id
+}
+
+resource "aws_security_group" "ssh-from-internet" {
+  name        = "ssh-from-internet"
+  description = "SSH access from internet"
+
+  vpc_id = aws_vpc.PublicVPC.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    name        = "ssh-from-internet"
+    description = "SSH access from internet"
+  }
+}
+
+resource "aws_vpc_peering_connection" "vpc-peering" {
+  peer_vpc_id = aws_vpc.PrivateVPC.id
+  vpc_id      = aws_vpc.PublicVPC.id
+  auto_accept = true
+
+  tags = {
+    Name = "VPC Peering between public and private VPCs"
+  }
+}
+
+resource "aws_route" "peering-route-1" {
+  route_table_id            = aws_route_table.PrivateRT.id
+  destination_cidr_block    = var.private_vpc_cidr
+  vpc_peering_connection_id = aws_vpc_peering_connection.vpc-peering.id
+  depends_on                = [aws_route_table.PrivateRT]
+}
+resource "aws_route" "peering-main-route-1" {
+  route_table_id            = aws_vpc.PublicVPC.default_route_table_id
+  destination_cidr_block    = var.private_vpc_cidr
+  vpc_peering_connection_id = aws_vpc_peering_connection.vpc-peering.id
 }

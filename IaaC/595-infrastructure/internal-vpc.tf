@@ -68,3 +68,41 @@ resource "aws_network_acl_association" "main-acl" {
   network_acl_id = aws_network_acl.acl-priv-vpc-subnet-main.id
   subnet_id      = aws_subnet.main_subnet.id
 }
+
+resource "aws_security_group" "ssh-from-anywhere" {
+  name        = "ssh-from-anywhere"
+  description = "SSH access from internet"
+  vpc_id      = aws_vpc.PrivateVPC.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    name        = "ssh-from-anywhere"
+    description = "SSH access from anywhere"
+  }
+}
+
+resource "aws_route" "peering-route-2" {
+  route_table_id            = aws_route_table.RT.id
+  destination_cidr_block    = var.public_vpc_cidr
+  vpc_peering_connection_id = aws_vpc_peering_connection.vpc-peering.id
+  depends_on                = [aws_route_table.RT]
+}
+
+resource "aws_route" "peering-main-route-2" {
+  route_table_id            = aws_vpc.PrivateVPC.default_route_table_id
+  destination_cidr_block    = var.public_vpc_cidr
+  vpc_peering_connection_id = aws_vpc_peering_connection.vpc-peering.id
+}
