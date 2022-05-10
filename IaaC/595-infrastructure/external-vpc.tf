@@ -21,17 +21,17 @@ resource "aws_subnet" "pub_subnet" {
 
 }
 
-resource "aws_subnet" "priv_subnet" {
-  vpc_id                  = aws_vpc.PublicVPC.id
-  map_public_ip_on_launch = false
-  cidr_block              = var.public_vpc_priv_subnet_cidr
+#resource "aws_subnet" "priv_subnet" {
+#  vpc_id                  = aws_vpc.PublicVPC.id
+#  map_public_ip_on_launch = false
+#  cidr_block              = var.public_vpc_priv_subnet_cidr
 
-  tags = {
-    Name   = var.public_vpc_priv_subnet_name
-    Author = var.author
-    Team   = var.team
-  }
-}
+#  tags = {
+#    Name   = var.public_vpc_priv_subnet_name
+#    Author = var.author
+#    Team   = var.team
+#  }
+#}
 
 resource "aws_route_table" "PublicRT" {
   vpc_id = aws_vpc.PublicVPC.id
@@ -48,18 +48,18 @@ resource "aws_route_table" "PublicRT" {
   }
 }
 
-resource "aws_route_table" "PrivateRT" {
-  vpc_id = aws_vpc.PublicVPC.id
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.NATgw.id
-  }
-  tags = {
-    Name   = var.public_vpc_priv_subnet_rt_name
-    Author = var.author
-    Team   = var.team
-  }
-}
+#resource "aws_route_table" "PrivateRT" {
+#  vpc_id = aws_vpc.PublicVPC.id
+#  route {
+#    cidr_block     = "0.0.0.0/0"
+#    nat_gateway_id = aws_nat_gateway.NATgw.id
+#  }
+#  tags = {
+#    Name   = var.public_vpc_priv_subnet_rt_name
+#    Author = var.author
+#    Team   = var.team
+#  }
+#}
 
 
 resource "aws_route_table_association" "PublicRTassociation" {
@@ -68,10 +68,10 @@ resource "aws_route_table_association" "PublicRTassociation" {
 }
 
 
-resource "aws_route_table_association" "PrivateRTassociation" {
-  subnet_id      = aws_subnet.priv_subnet.id
-  route_table_id = aws_route_table.PrivateRT.id
-}
+#resource "aws_route_table_association" "PrivateRTassociation" {
+#  subnet_id      = aws_subnet.priv_subnet.id
+#  route_table_id = aws_route_table.PrivateRT.id
+#}
 
 
 resource "aws_internet_gateway" "IGW" { # Creating Internet Gateway
@@ -127,66 +127,42 @@ resource "aws_network_acl" "acl-pub-vpc-subnet-external-1" {
     Name = "acl-pub-vpc-subnet-external-1"
   }
 }
-resource "aws_network_acl" "acl-pub-vpc-subnet-internal-1" {
-  vpc_id = aws_vpc.PublicVPC.id
-  egress {
-    protocol   = -1
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
+#resource "aws_network_acl" "acl-pub-vpc-subnet-internal-1" {
+#  vpc_id = aws_vpc.PublicVPC.id
+#  egress {
+#    protocol   = -1
+#    rule_no    = 100
+#    action     = "allow"
+#    cidr_block = "0.0.0.0/0"
+#    from_port  = 0
+#    to_port    = 0
 
-  }
+#  }
 
-  ingress {
-    protocol   = -1
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
+#  ingress {
+#    protocol   = -1
+#    rule_no    = 100
+#    action     = "allow"
+#    cidr_block = "0.0.0.0/0"
+#    from_port  = 0
+#    to_port    = 0
 
-  }
-  tags = {
-    Name = "acl-pub-vpc-subnet-internal-1"
-  }
-}
+#  }
+#  tags = {
+#    Name = "acl-pub-vpc-subnet-internal-1"
+#  }
+#}
 
 resource "aws_network_acl_association" "external-1-acl" {
   network_acl_id = aws_network_acl.acl-pub-vpc-subnet-external-1.id
   subnet_id      = aws_subnet.pub_subnet.id
 }
-resource "aws_network_acl_association" "internal-1-acl" {
-  network_acl_id = aws_network_acl.acl-pub-vpc-subnet-internal-1.id
-  subnet_id      = aws_subnet.priv_subnet.id
-}
+#resource "aws_network_acl_association" "internal-1-acl" {
+#  network_acl_id = aws_network_acl.acl-pub-vpc-subnet-internal-1.id
+#  subnet_id      = aws_subnet.priv_subnet.id
+#}
 
-resource "aws_security_group" "ssh-from-internet" {
-  name        = "ssh-from-internet"
-  description = "SSH access from internet"
 
-  vpc_id = aws_vpc.PublicVPC.id
-
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    name        = "ssh-from-internet"
-    description = "SSH access from internet"
-  }
-}
 
 resource "aws_vpc_peering_connection" "vpc-peering" {
   peer_vpc_id = aws_vpc.PrivateVPC.id
@@ -194,15 +170,17 @@ resource "aws_vpc_peering_connection" "vpc-peering" {
   auto_accept = true
 
   tags = {
-    Name = "VPC Peering between public and private VPCs"
+    Name   = "VPC Peering between public and private VPCs"
+    Author = var.author
+    Team   = var.team
   }
 }
 
 resource "aws_route" "peering-route-1" {
-  route_table_id            = aws_route_table.PrivateRT.id
+  route_table_id            = aws_route_table.PublicRT.id
   destination_cidr_block    = var.private_vpc_cidr
   vpc_peering_connection_id = aws_vpc_peering_connection.vpc-peering.id
-  depends_on                = [aws_route_table.PrivateRT]
+  depends_on                = [aws_route_table.PublicRT]
 }
 resource "aws_route" "peering-main-route-1" {
   route_table_id            = aws_vpc.PublicVPC.default_route_table_id

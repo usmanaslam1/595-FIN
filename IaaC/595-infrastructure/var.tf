@@ -34,3 +34,8 @@ variable "private_vpc_name" {}
 variable "private_vpc_priv_subnet_cidr" {}
 variable "private_vpc_priv_subnet_name" {}
 variable "private_vpc_priv_subnet_rt_name" {}
+
+
+variable "jump_box_ami" {}
+variable "jump_box_instance_type" {}
+variable "keypair_name" {}
