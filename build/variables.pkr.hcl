@@ -15,3 +15,8 @@ variable "ssh_user" {
   type = string
   default = "ec2-user"
 }
+
+variable "keyfile_name" {
+  type = string
+  default = "aws_keypair.pem"
+}

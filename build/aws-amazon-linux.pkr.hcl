@@ -25,7 +25,7 @@ build {
     "source.amazon-ebs.jump"
   ]
   provisioner "file" {
-    source      = ".files/princeton-key.pem"
+    source      = ".files/${var.keyfile_name}"
     destination = "/tmp/"
   }
 
@@ -43,10 +43,10 @@ build {
 
   inline = [
       "sudo yum update -y",
-      "sudo mv  /tmp/princeton-key.pem /root/.ssh",
+      "sudo mv  /tmp/${var.keyfile_name} /root/.ssh",
       "sudo mv -f /tmp/bashrc /root/.bashrc",
-      "sudo chown root:root /root/.ssh/princeton-key.pem",
-      "sudo chmod  400 /root/.ssh/princeton-key.pem",
+      "sudo chown root:root /root/.ssh/${var.keyfile_name}",
+      "sudo chmod  400 /root/.ssh/${var.keyfile_name}",
       "sudo mkdir /root/scripts",
       "sudo mv /tmp/remote.sh /root/scripts",
       "sudo chown root:root  /root/scripts/remote.sh",
