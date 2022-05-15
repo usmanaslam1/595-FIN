@@ -1,10 +1,10 @@
 resource "aws_network_interface" "jumpbox-nic-1" {
   subnet_id       = aws_subnet.pub_subnet.id
-  private_ips     = ["10.10.1.10"]
+  private_ips     = [var.ip_jump_box]
   security_groups = [aws_security_group.ssh-from-anywhere.id]
 
   tags = {
-    Name   = "Primary Network Interface"
+    Name   = "Jump Box - Primary Network Interface"
     Author = var.author
     Team   = var.team
   }
@@ -37,9 +37,10 @@ resource "aws_instance" "jump_box" {
   }
 
   tags = {
-    Name   = "595 - Jump Box"
-    Author = var.author
-    Team   = var.team
+    Name              = "595 - Jump Box"
+    Author            = var.author
+    Team              = var.team
+    cloud-watch-agent = true
   }
 
 }

@@ -28,6 +28,21 @@ resource "aws_subnet" "pub_subnet" {
 
 }
 
+##Public Subnet
+resource "aws_subnet" "pub_subnet_2" {
+  vpc_id                  = aws_vpc.PublicVPC.id
+  cidr_block              = var.public_vpc_pub_subnet_2_cidr
+  availability_zone       = "us-west-1c"
+  map_public_ip_on_launch = true
+  tags = {
+    Name   = var.public_vpc_pub_subnet_2_name
+    Note   = "Created to meet RDS requirements i.e. subnets need to be in multiple AZ"
+    Author = var.author
+    Team   = var.team
+  }
+
+}
+
 ### Pubic Routing Table
 #There is a default route to internet via Internet Gateway
 resource "aws_route_table" "PublicRT" {
@@ -47,12 +62,30 @@ resource "aws_route_table" "PublicRT" {
     Team   = var.team
   }
 }
+
+resource "aws_route_table" "PublicRT_2" {
+  vpc_id = aws_vpc.PublicVPC.id
+  route {
+    cidr_block = var.default_route_cidr
+    gateway_id = aws_internet_gateway.IGW.id
+  }
+
+  tags = {
+    Name   = var.public_vpc_pub_subnet_rt_2_name
+    Author = var.author
+    Team   = var.team
+  }
+}
+
 #Attach routing table to subnet
 resource "aws_route_table_association" "PublicRTassociation" {
   subnet_id      = aws_subnet.pub_subnet.id
   route_table_id = aws_route_table.PublicRT.id
 }
-
+resource "aws_route_table_association" "PublicRTassociation_2" {
+  subnet_id      = aws_subnet.pub_subnet_2.id
+  route_table_id = aws_route_table.PublicRT_2.id
+}
 
 ##Private Subnet
 resource "aws_subnet" "priv_subnet" {
